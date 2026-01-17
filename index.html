@@ -78,6 +78,8 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <!-- Dependencies -->
+    <!-- PropTypes is required for Recharts UMD -->
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
     <script src="https://unpkg.com/recharts@2.12.2/umd/Recharts.js"></script>
     <script src="https://unpkg.com/lucide-react@0.344.0/dist/umd/lucide-react.min.js"></script>
     <script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js"></script>
@@ -691,142 +693,6 @@
                     </div>
                     <div><h3 className="text-lg font-bold text-white mb-6 border-b border-dark-700 pb-2">Protein Collection</h3><div className="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-2 place-items-center">{MILESTONES.map(m => <BadgeItem key={m} m={m} s={streaks.protein} type="protein" />)}</div></div>
                     <div><h3 className="text-lg font-bold text-white mb-6 border-b border-dark-700 pb-2">Calorie Collection</h3><div className="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-2 place-items-center">{MILESTONES.map(m => <BadgeItem key={m} m={m} s={streaks.calories} type="calories" />)}</div></div>
-                </div>
-            );
-        };
-
-        // --- 5. Main App Component ---
-
-        const App = () => {
-            const [logs, setLogs] = useState([]);
-            const [userGoals, setUserGoals] = useState(null);
-            const [editingLog, setEditingLog] = useState(null);
-            const [isLoaded, setIsLoaded] = useState(false);
-            const [activeTab, setActiveTab] = useState('stats');
-            const [toastMessage, setToastMessage] = useState(null);
-            const [historyExpandedDate, setHistoryExpandedDate] = useState(null);
-            const [highlightedFields, setHighlightedFields] = useState([]);
-            const [deleteModal, setDeleteModal] = useState({ isOpen: false, date: null });
-            const [showFirstLogModal, setShowFirstLogModal] = useState(false);
-            const [theme, setTheme] = useState(() => {
-                if (typeof window !== 'undefined') {
-                    const stored = localStorage.getItem(THEME_KEY);
-                    if (stored === 'light' || stored === 'dark') return stored;
-                    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-                return 'dark';
-            });
-
-            useEffect(() => {
-                const root = window.document.documentElement;
-                if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
-                localStorage.setItem(THEME_KEY, theme);
-            }, [theme]);
-
-            useEffect(() => {
-                if (activeTab !== 'history') { setHistoryExpandedDate(null); setHighlightedFields([]); }
-            }, [activeTab]);
-
-            useEffect(() => {
-                try {
-                    const storedLogs = localStorage.getItem(STORAGE_KEY);
-                    const storedGoals = localStorage.getItem(GOALS_KEY);
-                    let parsedLogs = [];
-                    if (storedLogs) { parsedLogs = JSON.parse(storedLogs); setLogs(parsedLogs); }
-                    if (storedGoals) setUserGoals(JSON.parse(storedGoals));
-                    if (parsedLogs.length === 0) setActiveTab('goals'); else setActiveTab('stats');
-                } catch (e) { console.error(e); } finally { setIsLoaded(true); }
-            }, []);
-
-            useEffect(() => { if (isLoaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }, [logs, isLoaded]);
-            useEffect(() => { if (isLoaded && userGoals) localStorage.setItem(GOALS_KEY, JSON.stringify(userGoals)); }, [userGoals, isLoaded]);
-
-            const handleSaveLog = (newLog) => {
-                const isEdit = !!editingLog;
-                let changedFields = [];
-                if (isEdit && editingLog) {
-                    if (editingLog.weight !== newLog.weight) changedFields.push('weight');
-                    if (editingLog.protein !== newLog.protein) changedFields.push('protein');
-                    if (editingLog.carbs !== newLog.carbs) changedFields.push('carbs');
-                    if (editingLog.fat !== newLog.fat) changedFields.push('fat');
-                    if (editingLog.calories !== newLog.calories) changedFields.push('calories');
-                }
-                setLogs(prev => [...prev.filter(l => l.date !== newLog.date), newLog]);
-                setEditingLog(null);
-                setToastMessage("Log saved successfully!");
-                if (isEdit) { setHistoryExpandedDate(newLog.date); setHighlightedFields(changedFields); setActiveTab('history'); }
-                else { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveTab('stats'); }
-            };
-
-            const handleSaveGoals = (goals) => {
-                setUserGoals(goals);
-                if (logs.length === 0) setShowFirstLogModal(true);
-                else { setToastMessage("Goals updated successfully!"); setActiveTab('stats'); }
-            };
-
-            const confirmDelete = () => {
-                if (deleteModal.date) {
-                    setLogs(prev => prev.filter(l => l.date !== deleteModal.date));
-                    if (editingLog && editingLog.date === deleteModal.date) setEditingLog(null);
-                    setToastMessage("Entry deleted successfully!");
-                }
-                setDeleteModal({ isOpen: false, date: null });
-            };
-
-            const handleLoadDemoData = () => {
-                const demo = []; const t = new Date();
-                const g = userGoals || { calories: 2000, protein: 150, carbs: 200, fat: 60 };
-                if (!userGoals) setUserGoals(g);
-                for (let i = 99; i >= 0; i--) {
-                    const d = new Date(t); d.setDate(t.getDate() - i);
-                    const progress = (100 - i) / 100;
-                    demo.push({
-                        date: getLocalISODate(d),
-                        weight: Number((90 - (10 * progress) + (Math.random() * 0.8 - 0.4)).toFixed(1)),
-                        calories: Math.floor(g.calories - (Math.random() * 100)),
-                        protein: Math.floor(g.protein + (Math.random() * 20)),
-                        carbs: Math.floor(g.carbs + (Math.random() * 20 - 10)),
-                        fat: Math.floor(g.fat + (Math.random() * 10 - 5)),
-                    });
-                }
-                setLogs(demo);
-                setToastMessage("Demo data loaded!");
-                setActiveTab('badges');
-            };
-
-            const handleExportCSV = () => {
-                const h = ['Date', 'Weight (kg)', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)'];
-                const c = [h.join(','), ...logs.map(l => [l.date, l.weight, l.calories, l.protein, l.carbs, l.fat].join(','))].join('\n');
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(new Blob([c], { type: 'text/csv;charset=utf-8;' }));
-                link.download = `nutrition_logs_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            };
-
-            return (
-                <div className="min-h-screen pb-24 transition-colors duration-300">
-                    <header className="fixed top-0 left-0 right-0 bg-dark-900/80 backdrop-blur-md border-b border-dark-700 z-40 h-16 flex items-center justify-between px-6 transition-colors duration-300">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-neon-500 dark:bg-neon-400 p-1.5 rounded-lg shadow-lg shadow-neon-500/20"><Activity className="text-black" size={20} /></div>
-                            <h1 className="text-xl font-bold tracking-tight text-white">Dolev<span className="text-neon-500 dark:text-neon-400">Track</span></h1>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => setTheme(p => p === 'dark' ? 'light' : 'dark')} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">{theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</button>
-                            <button onClick={handleExportCSV} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"><Download size={20} /></button>
-                            <button onClick={handleLoadDemoData} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"><Database size={20} /></button>
-                        </div>
-                    </header>
-                    <main className="px-4 pt-20 max-w-md mx-auto sm:max-w-2xl animate-in fade-in duration-300">
-                        {activeTab === 'entry' && <TrackerForm onSave={handleSaveLog} initialData={editingLog} existingDates={new Set(logs.map(l => l.date))} userGoals={userGoals} />}
-                        {activeTab === 'history' && <LogList logs={logs} onEdit={(l) => { setEditingLog(l); setActiveTab('entry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onDelete={(d) => setDeleteModal({ isOpen: true, date: d })} initialExpandedDate={historyExpandedDate} highlightedFields={highlightedFields} userGoals={userGoals} />}
-                        {activeTab === 'stats' && <Charts logs={logs} userGoals={userGoals} theme={theme} />}
-                        {activeTab === 'goals' && <GoalForm currentGoals={userGoals} onSave={handleSaveGoals} />}
-                        {activeTab === 'badges' && <Badges logs={logs} userGoals={userGoals} />}
-                    </main>
-                    <BottomNav activeTab={activeTab} onTabChange={(t) => { setActiveTab(t); if (t !== 'entry') setEditingLog(null); }} />
-                    <AnimatePresence>{toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}</AnimatePresence>
-                    <Modal isOpen={deleteModal.isOpen} onClose={() => setDeleteModal({ isOpen: false, date: null })} onConfirm={confirmDelete} title="Delete Entry" message="Are you sure you want to delete this log?" />
-                    <Modal isOpen={showFirstLogModal} onClose={() => { setShowFirstLogModal(false); setToastMessage("Goals saved!"); setActiveTab('stats'); }} onConfirm={() => { setShowFirstLogModal(false); setActiveTab('entry'); }} title="Goals Set!" message="Let's log your first day!" confirmText="Log Now" cancelText="Skip" confirmVariant="primary" icon="success" />
                 </div>
             );
         };
