@@ -1,0 +1,5 @@
+{
+  "name": "DolevTrack",
+  "description": "A mobile-first, offline-capable personal nutrition tracker with dark mode, data visualization, and CSV export.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DolevTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              neon: {
+                400: '#a3e635',
+                500: '#84cc16',
+                600: '#65a30d',
+              },
+              // Define dynamic colors mapped to CSS variables
+              dark: {
+                900: 'rgb(var(--c-dark-900) / <alpha-value>)', // App Background
+                800: 'rgb(var(--c-dark-800) / <alpha-value>)', // Card Background
+                700: 'rgb(var(--c-dark-700) / <alpha-value>)', // Borders
+              },
+              // Override defaults for dynamic text
+              white: 'rgb(var(--c-white) / <alpha-value>)',
+              gray: {
+                200: 'rgb(var(--c-gray-200) / <alpha-value>)', // Body text
+                300: 'rgb(var(--c-gray-300) / <alpha-value>)', 
+                400: 'rgb(var(--c-gray-400) / <alpha-value>)', // Muted text
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        /* Light Mode Palette (Default) */
+        --c-dark-900: 243 244 246; /* gray-100 */
+        --c-dark-800: 255 255 255; /* white */
+        --c-dark-700: 229 231 235; /* gray-200 */
+        
+        --c-white: 17 24 39;       /* gray-900 (Main Text) */
+        --c-gray-200: 55 65 81;    /* gray-700 (Body Text) */
+        --c-gray-300: 75 85 99;    /* gray-600 */
+        --c-gray-400: 107 114 128; /* gray-500 (Muted) */
+      }
+
+      .dark {
+        /* Dark Mode Palette */
+        --c-dark-900: 9 9 11;      /* zinc-950 */
+        --c-dark-800: 24 24 27;    /* zinc-900 */
+        --c-dark-700: 39 39 42;    /* zinc-800 */
+        
+        --c-white: 255 255 255;    /* white */
+        --c-gray-200: 229 231 235; /* gray-200 */
+        --c-gray-300: 209 213 219; /* gray-300 */
+        --c-gray-400: 161 161 170; /* zinc-400 (Better contrast than gray-400) */
+      }
+
+      /* Custom scrollbar for dark/light mode */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgb(var(--c-dark-800)); 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgb(var(--c-dark-700)); 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgb(var(--c-gray-400)); 
+      }
+      
+      body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Flash Animation for updated values */
+      @keyframes flash-highlight {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; } /* Lower opacity by approx 30-40% */
+      }
+
+      .animate-flash {
+        animation: flash-highlight 1.5s ease-in-out 3; /* Run 3 times, slower speed */
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+    "lucide-react": "https://esm.sh/lucide-react@0.454.0?deps=react@18.3.1",
+    "recharts": "https://esm.sh/recharts@2.13.0?deps=react@18.3.1,react-dom@18.3.1",
+    "framer-motion": "https://esm.sh/framer-motion@11.11.10?deps=react@18.3.1,react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body class="bg-dark-900 text-gray-200 antialiased min-h-screen transition-colors duration-300">
+    <div id="root"></div>
+</body>
+</html>
