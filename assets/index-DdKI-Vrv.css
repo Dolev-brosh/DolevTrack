@@ -1,0 +1,1 @@
+:root{--color-dark-950: #09090b;--color-dark-900: #121214;--color-dark-800: #1a1a1c;--color-dark-700: #2a2a2c;--color-neon-400: #a3e635;--color-neon-500: #84cc16;--color-neon-600: #65a30d}body{@apply bg-dark-950 text-gray-100;font-family:Inter,sans-serif}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
